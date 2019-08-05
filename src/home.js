@@ -21,9 +21,17 @@ class Home extends Component {
   }
 
   getFlights = async () => {
+    try{
     let res = await axios.get("https://api.spacexdata.com/v3/launches?sort=launch_date_utc");
     let data = res.data;
     this.setState({ flights: data });
+    localStorage.setItem('flightData', JSON.stringify(data));
+    console.log(data);
+    } catch(e){
+      console.log('API Call Failed');
+      let data=localStorage.getItem('flightData');
+      this.setState({ flights: JSON.parse(data) });    
+    }
   };
 
   render(){
