@@ -1,0 +1,176 @@
+import React from 'react';
+// import { Link } from "react-router-dom";
+import { makeStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import CardActionArea from '@material-ui/core/CardActionArea';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import {lightBlue, red, lightGreen } from '@material-ui/core/colors';
+import WatchIC from '@material-ui/icons/WatchLater';
+import Chip from '@material-ui/core/Chip';
+import Avatar from '@material-ui/core/Avatar';
+import Grid from '@material-ui/core/Grid';
+import Tooltip from '@material-ui/core/Tooltip';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import Typography from '@material-ui/core/Typography';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { useTheme } from '@material-ui/core/styles';
+import DialogActions from '@material-ui/core/DialogActions';
+import Divider from '@material-ui/core/Divider';
+import moment from 'moment';
+import 'moment/locale/en-gb';
+import '../Cards/card.css'
+
+const useStyles = makeStyles( theme=>({
+    card: {
+        margin: theme.spacing(4)
+    },
+    title: {
+      marginLeft: theme.spacing(2),
+      flex: 1,
+    },
+    root: {
+      display: 'flex',
+      flexGrow: 1,
+      justifyContent: 'center',
+      flexWrap: 'wrap',
+    },
+    avatar: {
+      backgroundColor: lightBlue[500],
+      color:"white",
+    },
+    chipSuccess: {
+      margin: theme.spacing(1),
+      background: lightGreen[500],
+      color:"white",
+    },
+    chipFail: {
+      margin: theme.spacing(1),
+      background: red[500],
+      color:"white",
+    },
+    chipTbc: {
+      margin: theme.spacing(1),
+    },
+  }));
+
+
+  const placeholderChip = (val, classes)=> {
+    if(val===true){
+      return <Chip className={classes.chipSuccess} label="Success"/>
+    } else if (val===false){
+      return <Chip className={classes.chipFail} label="Failed"/>
+    } else {
+      return <Chip className={classes.chipTbc} avatar={<Avatar  className={classes.avatar}><WatchIC/></Avatar>} label="TBC"/>
+    }
+  }
+
+  const moreInfo =(heading,val)=>{
+    if(val){
+      return (
+        <DialogContentText style={{marginTop:15}}>
+          <strong>{heading}</strong> {val}
+          <Divider></Divider>
+        </DialogContentText>
+      )
+    }else {
+      return (
+        <DialogContentText style={{marginTop:15}}>
+          <strong>{heading}</strong> N/A
+          <Divider></Divider>
+        </DialogContentText>
+      )
+    }
+  }
+  
+  const Cards = (props)=> {
+
+    const [open, setOpen] = React.useState(false);
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+    const classes = useStyles();
+    moment.locale('en-gb');
+
+    function handleClickOpen() {
+      setOpen(true);
+    }
+  
+    function handleClose() {
+      setOpen(false);
+    }  
+
+    return (
+        <Grid item xs={12} md={3} sm={6}>
+            <Card className={classes.card}  >
+                <CardActionArea onClick={handleClickOpen}>
+                    <CardMedia
+                        component="img"
+                        alt={props.missionName}
+                        height="auto"
+                        image={(props.image)?props.image:"https://www.teslarati.com/wp-content/uploads/2018/02/spacex-falcon-heavy-double-landing.gif"}
+                        title={props.missionName}
+                        />
+
+                      <CardContent>
+                        <Typography gutterBottom variant="h6" >
+                        {(props.missionName)?props.missionName:<div className="placeholder-content" style={{height:30}}></div>}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                        {(props.flightNumber)?"Flight "+props.flightNumber:null}
+                        </Typography>
+                      </CardContent>  
+                </CardActionArea>
+
+                {(props.launchDateTime)?
+                <CardActions className={classes.root}>
+
+                  <Tooltip  title="Launch Date">
+                    <Chip className={classes.avatar} label={moment.parseZone(props.launchDateTime).format('L')}/>
+                  </Tooltip>
+                  
+                  <Tooltip  title={(props.launchUpcoming)?"Launch Status: Upcoming":"Launch Result"} >
+                    {placeholderChip(props.launchSuccess, classes)}
+                  </Tooltip>
+
+                  {/* <Link to={"/launch/"+props.flightNumber+""} style={{ textDecoration: 'none', color:"black" }}> */}
+                  <Button variant="contained" size="small" onClick={handleClickOpen}>
+                    More Info
+                  </Button>
+                  {/* </Link> */}
+
+                  <Dialog
+                      fullScreen={fullScreen}
+                      open={open}
+                      onClose={handleClose}
+                      aria-labelledby="responsive-dialog-title"
+                      style={{backgroundColor:"white"}}
+                      >
+                      <DialogTitle id="responsive-dialog-title">{"Mission "+props.flightNumber+": "+props.missionName}</DialogTitle>
+
+                      <DialogContent >
+                        {(props.videoID)?<div className="video-container"><iframe title={props.videoID} width="853" height="480" src={"https://www.youtube.com/embed/"+props.videoID} frameBorder="0" allowFullScreen></iframe></div>:<h2>Video Coming Soon</h2>}
+
+                        {moreInfo("Launch Details: ", props.details)}
+                        {moreInfo("Launch Site: ", props.ls)}
+                        {(props.imgDl)?<a href={props.imgDl} download target="_blank" rel="noopener noreferrer">Download Mission Patch</a>:null}
+                      </DialogContent>
+
+                      <DialogActions>
+                        <Button onClick={handleClose} variant="contained" color="secondary" autoFocus>
+                          Close
+                        </Button>
+                      </DialogActions>
+                  </Dialog>
+
+              </CardActions>:null}
+            </Card>
+        </Grid> 
+    );
+  }
+
+export default Cards;
