@@ -4,7 +4,6 @@ import './App.css';
 import Grid from '@material-ui/core/Grid';
 import axios from 'axios';
 
-
 var placeholder = [];
 
 for (var i = 0; i < 12; i++) {
@@ -26,8 +25,9 @@ class Home extends Component {
       let data = res.data;
       this.setState({ flights: data });
       localStorage.setItem('flightData', JSON.stringify(data));
+
     } catch(e){
-      console.log('API Call Failed');
+      console.log('Flight API Call Failed');
       let data=localStorage.getItem('flightData');
       this.setState({ flights: JSON.parse(data) });    
     }
@@ -58,6 +58,7 @@ class Home extends Component {
                           details={data.details}
                           ls={data.launch_site.site_name_long}
                           videoID={data.links.youtube_id}
+                          rocketID={data.rocket.rocket_id}
                           ></Card>;
                       })
                   )

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 // import { Link } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -22,7 +22,14 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useTheme } from '@material-ui/core/styles';
 import DialogActions from '@material-ui/core/DialogActions';
 import Divider from '@material-ui/core/Divider';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import moment from 'moment';
+import axios from 'axios';
 import 'moment/locale/en-gb';
 import '../Cards/card.css'
 
@@ -57,8 +64,40 @@ const useStyles = makeStyles( theme=>({
     chipTbc: {
       margin: theme.spacing(1),
     },
+    bgImg:{
+      backgroundImage:"url(https://www.nasaspaceflight.com/wp-content/uploads/2018/10/2018-10-22-13_27_15-Window.jpg)",
+      backgroundColor:"white",
+      height: "100%",
+      backgroundPosition:"center",
+      backgroundRepeat:'no-repeat',
+      backgroundSize:"cover"
+    },
+    heading:{
+      fontWeight:"bold",
+    }
   }));
 
+  // const [data, setData] = useState({ rocketInfo: [] });
+  // const rocketInfo = async (ID) => {
+  //   try{
+  //     let res = await axios.get("https://api.spacexdata.com/v3/rockets/"+ID);
+  //     let data = res.data;
+  //     console.log(data)
+  //     // setData(data);
+  //   } catch(e){
+  //     console.log('Rocket API Call Failed'); 
+  //   }
+  // }
+
+
+
+  // useEffect(async () => {
+  //   const result = await axios(
+  //     "https://api.spacexdata.com/v3/rockets/"+props.rocketID,
+  //   );
+
+  //   setData(result.data);
+  // });
 
   const placeholderChip = (val, classes)=> {
     if(val===true){
@@ -73,17 +112,19 @@ const useStyles = makeStyles( theme=>({
   const moreInfo =(heading,val)=>{
     if(val){
       return (
-        <DialogContentText style={{marginTop:15}}>
+        <div><DialogContentText style={{marginTop:15}}>
           <strong>{heading}</strong> {val}
-          <Divider></Divider>
         </DialogContentText>
+          <Divider></Divider>
+        </div>
       )
     }else {
       return (
-        <DialogContentText style={{marginTop:15}}>
+        <span><DialogContentText style={{marginTop:15}}>
           <strong>{heading}</strong> N/A
-          <Divider></Divider>
         </DialogContentText>
+          <Divider></Divider>
+        </span>
       )
     }
   }
@@ -96,9 +137,19 @@ const useStyles = makeStyles( theme=>({
     const classes = useStyles();
     moment.locale('en-gb');
 
+    async function rocketInfo() {   
+      return await axios.get("https://api.spacexdata.com/v3/rockets/"+props.rocketID);
+    }
+
     function handleClickOpen() {
       setOpen(true);
-    }
+      rocketInfo().then((response) => {
+        console.log(response.data.rocket_name);
+          return response.data.rocket_name
+        }).catch((response) => { 
+        console.log(response)
+      });  
+    }    
   
     function handleClose() {
       setOpen(false);
@@ -108,22 +159,22 @@ const useStyles = makeStyles( theme=>({
         <Grid item xs={12} md={3} sm={6}>
             <Card className={classes.card}  >
                 <CardActionArea onClick={handleClickOpen}>
-                    <CardMedia
-                        component="img"
-                        alt={props.missionName}
-                        height="auto"
-                        image={(props.image)?props.image:"https://www.teslarati.com/wp-content/uploads/2018/02/spacex-falcon-heavy-double-landing.gif"}
-                        title={props.missionName}
-                        />
+                  <CardMedia
+                      component="img"
+                      alt={props.missionName}
+                      height="auto"
+                      image={(props.image)?props.image:"https://www.teslarati.com/wp-content/uploads/2018/02/spacex-falcon-heavy-double-landing.gif"}
+                      title={props.missionName}
+                      />
 
-                      <CardContent>
-                        <Typography gutterBottom variant="h6" >
-                        {(props.missionName)?props.missionName:<div className="placeholder-content" style={{height:30}}></div>}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary" component="p">
-                        {(props.flightNumber)?"Flight "+props.flightNumber:null}
-                        </Typography>
-                      </CardContent>  
+                  <CardContent>
+                    <Typography gutterBottom variant="h6" >
+                    {(props.missionName)?props.missionName:<div className="placeholder-content" style={{height:30}}></div>}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                    {(props.flightNumber)?"Flight "+props.flightNumber:null}
+                    </Typography>
+                  </CardContent>  
                 </CardActionArea>
 
                 {(props.launchDateTime)?
@@ -148,17 +199,54 @@ const useStyles = makeStyles( theme=>({
                       open={open}
                       onClose={handleClose}
                       aria-labelledby="responsive-dialog-title"
-                      style={{backgroundColor:"white"}}
+                      className={classes.bgImg}
+                      maxWidth="sm"
                       >
-                      <DialogTitle id="responsive-dialog-title">{"Mission "+props.flightNumber+": "+props.missionName}</DialogTitle>
-
+                      <DialogTitle id="responsive-dialog-title">                          <AppBar position="static">
+                          <Toolbar>
+                            <Typography variant="h6" color="inherit">
+                            {"Mission "+props.flightNumber+": "+props.missionName}
+                            </Typography>
+                          </Toolbar>
+                        </AppBar>
+                      </DialogTitle>
+                      
                       <DialogContent >
                         {(props.videoID)?<div className="video-container"><iframe title={props.videoID} width="853" height="480" src={"https://www.youtube.com/embed/"+props.videoID} frameBorder="0" allowFullScreen></iframe></div>:<h2>Video Coming Soon</h2>}
 
-                        {moreInfo("Launch Details: ", props.details)}
-                        {moreInfo("Launch Site: ", props.ls)}
-                        {(props.imgDl)?<a href={props.imgDl} download target="_blank" rel="noopener noreferrer">Download Mission Patch</a>:null}
+                        <ExpansionPanel style={{marginTop:10}}>
+                          <ExpansionPanelSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                          >
+                            <Typography variant="h6" className={classes.heading} style={{bakground:"red"}}>Launch Details</Typography>
+                          </ExpansionPanelSummary>
+                          <ExpansionPanelDetails>
+                            <Typography>
+                              {moreInfo("Details:", props.details)}
+                              {moreInfo("Site: ", props.ls)}
+                              {(props.imgDl)?<div><DialogContentText style={{marginTop:15}}><a href={props.imgDl} download target="_blank" rel="noopener noreferrer">Download Mission Patch</a></DialogContentText></div>:null}
+                            </Typography>
+                          </ExpansionPanelDetails>
+                        </ExpansionPanel>
+
+                          <ExpansionPanel>
+                            <ExpansionPanelSummary
+                              expandIcon={<ExpandMoreIcon />}
+                              aria-controls="panel1a-content"
+                              id="panel2a-header"
+                            >
+                              <Typography className={classes.heading} variant="h6">Rocket Details</Typography>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails>
+                              <Typography>
+                                
+                              </Typography>
+                            </ExpansionPanelDetails>
+                          </ExpansionPanel>
                       </DialogContent>
+                      
 
                       <DialogActions>
                         <Button onClick={handleClose} variant="contained" color="secondary" autoFocus>
