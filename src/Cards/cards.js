@@ -77,28 +77,6 @@ const useStyles = makeStyles( theme=>({
     }
   }));
 
-  // const [data, setData] = useState({ rocketInfo: [] });
-  // const rocketInfo = async (ID) => {
-  //   try{
-  //     let res = await axios.get("https://api.spacexdata.com/v3/rockets/"+ID);
-  //     let data = res.data;
-  //     console.log(data)
-  //     // setData(data);
-  //   } catch(e){
-  //     console.log('Rocket API Call Failed'); 
-  //   }
-  // }
-
-
-
-  // useEffect(async () => {
-  //   const result = await axios(
-  //     "https://api.spacexdata.com/v3/rockets/"+props.rocketID,
-  //   );
-
-  //   setData(result.data);
-  // });
-
   const placeholderChip = (val, classes)=> {
     if(val===true){
       return <Chip className={classes.chipSuccess} label="Success"/>
@@ -112,17 +90,19 @@ const useStyles = makeStyles( theme=>({
   const moreInfo =(heading,val)=>{
     if(val){
       return (
-        <div><DialogContentText style={{marginTop:15}}>
-          <strong>{heading}</strong> {val}
-        </DialogContentText>
+        <div>
+          <DialogContentText style={{marginTop:15}}>
+            <strong>{heading}</strong> {val}
+          </DialogContentText>
           <Divider></Divider>
         </div>
       )
     }else {
       return (
-        <span><DialogContentText style={{marginTop:15}}>
-          <strong>{heading}</strong> N/A
-        </DialogContentText>
+        <span>
+          <DialogContentText style={{marginTop:15}}>
+            <strong>{heading}</strong> N/A
+          </DialogContentText>
           <Divider></Divider>
         </span>
       )
@@ -130,8 +110,8 @@ const useStyles = makeStyles( theme=>({
   }
   
   const Cards = (props)=> {
-
     const [open, setOpen] = React.useState(false);
+    const [rocketInformation, setRocketInfo] = React.useState({});
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const classes = useStyles();
@@ -144,10 +124,20 @@ const useStyles = makeStyles( theme=>({
     function handleClickOpen() {
       setOpen(true);
       rocketInfo().then((response) => {
-        console.log(response.data.rocket_name);
-          return response.data.rocket_name
-        }).catch((response) => { 
-        console.log(response)
+        let data= response.data;
+        setRocketInfo({       
+          rocketId: data.rocket_id,
+          rocketName: data.rocket_name,
+          rocketHeightFeet: data.height.feet,
+          rocketHeightMeters: data.height.meters,
+          rocketMassKg: data.mass.kg,
+          rocketMassLb: data.mass.lb,
+          rocketStages: data.stages,
+          rocketDetails: data.description 
+        });
+
+        }).catch((err) => { 
+        console.log(err)
       });  
     }    
   
@@ -241,7 +231,11 @@ const useStyles = makeStyles( theme=>({
                             </ExpansionPanelSummary>
                             <ExpansionPanelDetails>
                               <Typography>
-                                
+                              {moreInfo("Name / ID:", rocketInformation.rocketName+' ('+rocketInformation.rocketId+')')}
+                              {moreInfo("Height:", rocketInformation.rocketHeightFeet+'Ft / '+rocketInformation.rocketHeightMeters+'m')}
+                              {moreInfo("Mass:", rocketInformation.rocketMassKg+'Kg / '+rocketInformation.rocketMassLb+'Lb')}
+                              {moreInfo("No of Stages:", rocketInformation.rocketStages)}
+                              {moreInfo("Details:", rocketInformation.rocketDetails)}
                               </Typography>
                             </ExpansionPanelDetails>
                           </ExpansionPanel>
