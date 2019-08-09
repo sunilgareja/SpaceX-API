@@ -1,5 +1,5 @@
 # SpaceX-API
-simple react app using React which Fetches data from the open source SpaceX API (WIP)
+simple PWA react app using React which Fetches data from the open source SpaceX API (Also works offline)
 
 To install: 
 1. Make sure you have NodeJs installed on your computer.
