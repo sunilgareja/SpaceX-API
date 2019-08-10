@@ -3,6 +3,7 @@ import Card from './Cards/cards';
 import './App.css';
 import Grid from '@material-ui/core/Grid';
 import axios from 'axios';
+import Select from 'react-select';
 
 var placeholder = [];
 
@@ -11,13 +12,33 @@ for (var i = 0; i < 12; i++) {
 }
 
 class Home extends Component {
-  state = {
-    flights: []
-  };
+
+  constructor(props) {
+    super(props);
+    this.state = {flights: [], selectedOption: null};
+  }
 
   componentDidMount() {
     this.getFlights();
   }
+
+  handleChange = selectedOption => {
+    this.setState({ selectedOption });
+    // console.log(`Option selected:`, selectedOption.value);
+    
+    const filter =JSON.parse(localStorage.getItem('flightData')).filter(
+      (flight) =>{
+        if(selectedOption.value==='All'){
+          return flight;  
+        }else {
+          return selectedOption.value===flight.rocket.rocket_name;
+        }
+      }
+    );
+
+    this.setState({ flights: filter });
+    // console.log(filter)
+  };
 
   getFlights = async () => {
     try{
@@ -26,6 +47,13 @@ class Home extends Component {
       this.setState({ flights: data });
       localStorage.setItem('flightData', JSON.stringify(data));
 
+      // this is to deal with filtering the results
+      const flight = this.state.flights.map(f => f.rocket.rocket_name);
+      const options = flight.filter((q, idx) => flight.indexOf(q) === idx);
+      const optionSelect = options.map((str) => ({ value: str, label: str }));
+      optionSelect.unshift({value: "All", label: "All"});
+      localStorage.setItem('optionSelect', JSON.stringify(optionSelect));
+
     } catch(e){
       console.log('Flight API Call Failed');
       let data=localStorage.getItem('flightData');
@@ -33,7 +61,10 @@ class Home extends Component {
     }
   };
 
+  
   render(){
+    const { selectedOption } = this.state;
+    // console.log(this.state);
     return (
         <div className="App">
           <div className={{      
@@ -41,6 +72,15 @@ class Home extends Component {
             flexGrow: 1,
             justifyContent: 'center',
             flexWrap: 'wrap',}}>
+              <br></br>
+              <Grid item xs={12} md={4} sm={6} style={{marginLeft:30, marginRight:30}}>
+                <Select
+                value={selectedOption}
+                onChange={this.handleChange}
+                options={JSON.parse(localStorage.getItem('optionSelect'))}
+                placeholder="Filter By Rocket"
+                />
+              </Grid>
             <Grid container direction="row" >
                 {this.state.flights.length === 0 ? (
                       placeholder
