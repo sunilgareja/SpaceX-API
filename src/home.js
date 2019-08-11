@@ -50,9 +50,10 @@ class Home extends Component {
       // this is to deal with filtering the results
       const flight = this.state.flights.map(f => f.rocket.rocket_name);
       const options = flight.filter((q, idx) => flight.indexOf(q) === idx);
-      const optionSelect = options.map((str) => ({ value: str, label: str }));
+      let optionSelect = options.map((str) => ({ value: str, label: str }));
       optionSelect.unshift({value: "All", label: "All"});
-      localStorage.setItem('optionSelect', JSON.stringify(optionSelect));
+      this.setState({ filterVals: optionSelect });
+      // localStorage.setItem('optionSelect', JSON.stringify(optionSelect));
 
     } catch(e){
       console.log('Flight API Call Failed');
@@ -77,7 +78,7 @@ class Home extends Component {
                 <Select
                 value={selectedOption}
                 onChange={this.handleChange}
-                options={JSON.parse(localStorage.getItem('optionSelect'))}
+                options={this.state.filterVals}
                 placeholder="Filter By Rocket"
                 />
               </Grid>
