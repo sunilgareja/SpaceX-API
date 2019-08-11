@@ -53,7 +53,7 @@ class Home extends Component {
       let optionSelect = options.map((str) => ({ value: str, label: str }));
       optionSelect.unshift({value: "All", label: "All"});
       this.setState({ filterVals: optionSelect });
-      // localStorage.setItem('optionSelect', JSON.stringify(optionSelect));
+      localStorage.setItem('optionSelect', JSON.stringify(optionSelect));
 
     } catch(e){
       console.log('Flight API Call Failed');
@@ -78,7 +78,7 @@ class Home extends Component {
                 <Select
                 value={selectedOption}
                 onChange={this.handleChange}
-                options={this.state.filterVals}
+                options={(navigator.onLine?this.state.filterVals:JSON.parse(localStorage.getItem('optionSelect')))}
                 placeholder="Filter By Rocket"
                 />
               </Grid>
