@@ -5,9 +5,9 @@ import Grid from '@material-ui/core/Grid';
 import axios from 'axios';
 import Select from 'react-select';
 
-var placeholder = [];
+let placeholder = [];
 
-for (var i = 0; i < 12; i++) {
+for (let i = 0; i < 12; i++) {
   placeholder.push(<Card key={i}/>);
 }
 
